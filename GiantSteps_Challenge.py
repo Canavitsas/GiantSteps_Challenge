@@ -113,18 +113,23 @@ print(final_df)
 
 highestProfit = 0
 currStartDate = start_date
+startIndex = 0 # index from which we will start looking for the first selic rate inside the 500 days period
+endIndex = 0 # index from which we will start looking for the last selic rate inside the 500 days period
 while(currStartDate != end_date):
     currEndDate = currStartDate + DateOffset(days=499)
     #get first date in our rates table that is after currStartDate
-    for row in final_table:
-        if row['Date'] >= currStartDate:
-            currStartCapital= row['Capital']
+    for i in range(startIndex, len(final_table)):
+        if final_table[i]['Date'] >= currStartDate:
+            currStartCapital= final_table[i]['Capital']
+            startIndex = i
             break
 
-    #get last date in our rates table that is before currEndDate
-    for row in final_table[::-1]:
-        if row['Date'] <= currEndDate:
-            currEndCapital = row['Capital']
+    #get last date in our rates table that is still before currEndDate
+    for i in range(endIndex, len(final_table)):
+        if final_table[i]['Date'] > currEndDate:
+            currEndCapital = final_table[i-1]['Capital']
+            endIndex = i-1
+            # print(f"endINdex {endIndex}")
             break
 
     currIntervalProfit = (currEndCapital - currStartCapital)/currStartCapital
@@ -134,8 +139,7 @@ while(currStartDate != end_date):
         highestProfitEndDate = currEndDate
 
     currStartDate += DateOffset(days = 1)
-        
+
 print(highestProfit)
 print(highestProfitStartDate)
 print(highestProfitEndDate)
-print((highestProfitEndDate - highestProfitStartDate).days)
